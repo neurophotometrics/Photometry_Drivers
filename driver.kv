@@ -1,0 +1,78 @@
+#:import const const
+#:kivy 1.10.1
+
+  
+
+
+<OnButton>:
+  size:100,100
+  text:"Active"
+  canvas:
+    Color:
+      rgba: 1,.3,.8,.5
+    Rectangle:
+      pos:self.pos
+      size:self.size
+
+<ModeButton>:
+  size:100,100
+  canvas:
+    Color:
+      rgba: 1,.3,.8,.5
+    Rectangle:
+      pos:self.pos
+      size:self.size
+
+<DriverLayout>:
+  onButton: on_button 
+  constButton: const_button
+  trig1Button: trig1_button
+
+  OnButton:
+    id: on_button
+    x: root.x
+    controller: root.controller
+    state:"normal"
+    center_y: root.center_y
+    on_press: self.press_power()
+ 
+  ModeButton:
+    id: const_button
+    controller: root.controller
+    x: root.x + 200
+    state: "down"
+    disabled: root.controller.active
+    text:const.CONST
+    mode:const.CONST
+    group:"mode"
+    center_y: root.center_y
+    on_press: self.press_mode() 
+
+  ModeButton:
+    id: trig1_button
+    x: root.x + 400
+    disabled: root.controller.active
+    state:"normal"
+    controller: root.controller
+    text:const.TRIG1    
+    mode:const.TRIG1
+    group:"mode"
+    center_y: root.center_y
+    on_press: self.press_mode()
+
+  ModeButton:
+    id: trig2_button
+    x: root.x + 600
+    controller: root.controller
+    disabled: root.controller.active
+    state:"normal"
+    text:const.TRIG2    
+    mode:const.TRIG2
+    group:"mode"
+    center_y: root.center_y
+    on_press: self.press_mode()
+
+
+
+
+
