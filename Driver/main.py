@@ -24,7 +24,6 @@ Initializing global parameters
 kivy.require('1.10.1') 
 
 
-
 class Controller(Widget):
   active = BooleanProperty(False)     
   mode = StringProperty(const.NULL)
@@ -59,9 +58,6 @@ class Controller(Widget):
       # illegal state
       assert False
 
-     
-
-
 
 class OnButton(ToggleButton):
   def press_power(self):
@@ -92,6 +88,7 @@ class DriverLayout(Widget):
   trig1Button = ModeButton()
   trig2Button = ModeButton()
   trig3Button = ModeButton()
+  logo = ObjectProperty(None)
 
   def update(self,dt):
     self.controller.updateGPIO()
@@ -102,7 +99,7 @@ class DriverApp(App):
     driverLayout = DriverLayout()
     Clock.schedule_interval(driverLayout.update,1.0/60.0)  
     return driverLayout
-
+    
 
 
 
