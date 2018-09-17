@@ -108,7 +108,7 @@ class DriverApp(App):
 
 if __name__ == '__main__':
   DriverApp().run()
-  print('Exiting')
+  print('Exiting and cleaning GPIO')
   GPIO.cleanup()
 
 
