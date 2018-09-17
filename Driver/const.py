@@ -3,9 +3,9 @@ potPin470 = 22
 potPin415 = 32
 potPins = (potPin560,potPin470,potPin415)
 
-enPin560 = 0
-enPin470 = 1
-enPin415 = 2
+enPin560 = 31
+enPin470 = 33
+enPin415 = 35
 enPins = (enPin560,enPin470,enPin415)
 
 CONST = "CONST"

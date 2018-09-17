@@ -33,12 +33,33 @@ class Controller(Widget):
     self.mode = const.CONST
     self.active = False
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(const.potPin560,GPIO.OUT,initial=GPIO.LOW)
-    GPIO.setup(const.potPin470,GPIO.OUT,initial=GPIO.LOW)
-    GPIO.setup(const.potPin415,GPIO.OUT,initial=GPIO.LOW)
-       
-  def initializeState(self):
-    pass   
+    GPIO.setup(const.enPin560,GPIO.OUT,initial=GPIO.LOW)
+    GPIO.setup(const.enPin470,GPIO.OUT,initial=GPIO.LOW)
+    GPIO.setup(const.enPin415,GPIO.OUT,initial=GPIO.LOW)
+      
+  def updateEnable(self,state1,state2,state3):
+    self.GPIO.output(const.enPin560,state1)
+    self.GPIO.output(const.enPin470,state2)
+    self.GPIO.output(const.enPin415,state3)
+  
+  def updateIntensity(self):
+    pass 
+   
+  def updateGPIO(self):
+    if self.mode == const.CONST:
+      self.updateEnable(self.GPIO.HIGH,self.GPIO.HIGH,self.GPIO.HIGH) 
+      self.updateIntensity()
+    elif self.mode == const.TRIG1:
+      self.updateEnable(self.GPIO.LOW,self.GPIO.LOW,self.GPIO.LOW) 
+      self.updateIntensity()
+    elif self.mode == const.TRIG2:
+      self.updateEnable(self.GPIO.HIGH,self.GPIO.LOW,self.GPIO.HIGH) 
+      self.updateIntensity()
+    else:
+      # illegal state
+      assert False
+
+     
 
 
 
@@ -72,10 +93,14 @@ class DriverLayout(Widget):
   trig2Button = ModeButton()
   trig3Button = ModeButton()
 
+  def update(self,dt):
+    self.controller.updateGPIO()
+
 
 class DriverApp(App):
   def build(self):
     driverLayout = DriverLayout()
+    Clock.schedule_interval(driverLayout.update,1.0/60.0)  
     return driverLayout
 
 
