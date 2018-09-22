@@ -1,12 +1,12 @@
-potPin560 = 18
-potPin470 = 22
-potPin415 = 32
-potPins = (potPin560,potPin470,potPin415)
-
-enPin560 = 31
-enPin470 = 33
-enPin415 = 35
+enPin560 = 18 #yellow
+enPin470 = 22 #white 
+enPin415 = 17 #blue 
 enPins = (enPin560,enPin470,enPin415)
+
+potPin560 = 31
+potPin470 = 33
+potPin415 = 35
+potPins = (potPin560,potPin470,potPin415)
 
 CONST = "CONST"
 TRIG1 = "TRIG1"

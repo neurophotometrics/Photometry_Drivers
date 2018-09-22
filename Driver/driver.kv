@@ -27,7 +27,13 @@
   onButton: on_button 
   constButton: const_button
   trig1Button: trig1_button
+  fpsSlider: fps_slider
   logo: brain_logo
+
+
+  #GridLayout:
+  #  size: root.size
+  #  rows: 2
 
   OnButton:
     id: on_button
@@ -36,6 +42,12 @@
     state:"normal"
     center_y: root.center_y
     on_press: self.press_power()
+
+  Label: 
+    font_size: 18
+    x: root.x + 7
+    center_y: root.center_y + 70
+    text: "Mode: " + root.controller.mode
  
   ModeButton:
     id: const_button
@@ -73,10 +85,29 @@
     center_y: root.center_y
     on_press: self.press_mode()
 
+  Slider:
+    id: fps_slider
+    #controller: root.controller
+    disabled: root.controller.active
+    min: 1
+    max: 4
+    value: 2
+    on_value: root.controller.FPS = self.value
+    orientation: "vertical"
+    x: root.x + 200
+    center_y: root.height - 100    
+  
+  Label:
+    font_size: 20
+    x: root.x + 200
+    center_y: root.height - 50
+    text: "FPS: " + str(round(root.fpsSlider.value,2))
+
+
   Image: 
     id: brain_logo
     source: "NPMLogo.png" 
-    size: 100,100
+    size: 150,150
     x: root.x
     center_y: root.height - 100 
 

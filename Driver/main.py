@@ -32,37 +32,77 @@ class Controller(Widget):
     self.mode = const.CONST
     self.active = False
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(const.enPin560,GPIO.OUT,initial=GPIO.LOW)
-    GPIO.setup(const.enPin470,GPIO.OUT,initial=GPIO.LOW)
-    GPIO.setup(const.enPin415,GPIO.OUT,initial=GPIO.LOW)
+    self.FPS = 0.5
+    self.enPin560State = GPIO.LOW
+    self.enPin470State = GPIO.LOW
+    self.enPin415State = GPIO.LOW
+    GPIO.setup(const.enPin560,GPIO.OUT,initial=self.enPin560State)
+    GPIO.setup(const.enPin470,GPIO.OUT,initial=self.enPin470State)
+    GPIO.setup(const.enPin415,GPIO.OUT,initial=self.enPin415State)
       
-  def updateEnable(self,state1,state2,state3):
-    self.GPIO.output(const.enPin560,state1)
-    self.GPIO.output(const.enPin470,state2)
-    self.GPIO.output(const.enPin415,state3)
+  def updateEnable(self):
+    self.GPIO.output(const.enPin560,self.enPin560State)
+    self.GPIO.output(const.enPin470,self.enPin470State)
+    self.GPIO.output(const.enPin415,self.enPin415State)
   
   def updateIntensity(self):
     pass 
-   
-  def updateGPIO(self):
-    if self.mode == const.CONST:
-      self.updateEnable(self.GPIO.HIGH,self.GPIO.HIGH,self.GPIO.HIGH) 
-      self.updateIntensity()
-    elif self.mode == const.TRIG1:
-      self.updateEnable(self.GPIO.LOW,self.GPIO.LOW,self.GPIO.LOW) 
-      self.updateIntensity()
-    elif self.mode == const.TRIG2:
-      self.updateEnable(self.GPIO.HIGH,self.GPIO.LOW,self.GPIO.HIGH) 
-      self.updateIntensity()
-    else:
-      # illegal state
-      assert False
+  def updateFPS(self):
+    pass   
 
+  def initMode(self):
+    assert self.active == True 
+    if self.mode == const.CONST:
+      self.enPin560State = self.GPIO.HIGH
+      self.enPin470State = self.GPIO.HIGH
+      self.enPin415State = self.GPIO.HIGH
+    elif self.mode == const.TRIG1:
+      self.enPin560State = self.GPIO.HIGH
+      self.enPin470State = self.GPIO.LOW
+      self.enPin415State = self.GPIO.HIGH
+      Clock.schedule_once(self.blinkController,1.0 / self.FPS)
+    elif self.mode == const.TRIG2:
+      self.enPin560State = self.GPIO.LOW
+      self.enPin470State = self.GPIO.HIGH
+      self.enPin415State = self.GPIO.HIGH
+      Clock.schedule_once(self.blinkController,1.0 / self.FPS)
+    else:
+      assert False
+    self.updateEnable()
+
+
+  def modeController(self,dt):
+    if self.active == False:
+      self.enPin560State = self.GPIO.LOW
+      self.enPin470State = self.GPIO.LOW
+      self.enPin415State = self.GPIO.LOW
+      self.updateIntensity()
+      self.updateFPS()   
+      self.updateEnable()
+  
+
+  def invertLED(self):
+    self.enPin560State = not self.enPin560State 
+    self.enPin470State = not self.enPin470State
+    self.enPin415State = not self.enPin415State
+
+  def blinkController(self,dt):
+    if self.active == False:
+      pass
+    elif self.mode == const.TRIG1 or self.mode == const.TRIG2:
+      self.invertLED() 
+      self.updateEnable()
+      Clock.schedule_once(self.blinkController,1.0 / self.FPS)
+ 
+
+
+   
 
 class OnButton(ToggleButton):
   def press_power(self):
     if self.state == const.DOWN:
       self.controller.active = True
+      self.controller.initMode()
       print (self.controller.active)
     else:
       self.controller.active = False
@@ -76,28 +116,39 @@ class ModeButton(ToggleButton):
     if self.controller.mode != self.mode:
       self.controller.mode = self.mode
       print("Entering",self.controller.mode,"mode") 
-
   def __init__(self,mode=const.NULL,**kwargs):
     self.mode = mode 
     super(ModeButton,self).__init__(**kwargs)  
 
+
+class SliderFPS(Slider):
+  pass  
+
+
 class DriverLayout(Widget):
   controller = Controller(GPIO)
-  onButton = OnButton()
-  constButton = ModeButton()
-  trig1Button = ModeButton()
-  trig2Button = ModeButton()
-  trig3Button = ModeButton()
+  onButton = ObjectProperty(None)
+  constButton = ObjectProperty(None)
+  trig1Button = ObjectProperty(None)
+  trig2Button = ObjectProperty(None)
+  trig3Button = ObjectProperty(None)
+  fpsSlider = ObjectProperty(None)#SliderFPS()
+
   logo = ObjectProperty(None)
 
-  def update(self,dt):
-    self.controller.updateGPIO()
+  def setClocks(self):
+     #self.controller.modeController()
+    Clock.schedule_interval(self.controller.modeController,1.0/60.0)
+
+  def blink(self,dt):
+    self.controller.blink()
 
 
 class DriverApp(App):
   def build(self):
     driverLayout = DriverLayout()
-    Clock.schedule_interval(driverLayout.update,1.0/60.0)  
+    driverLayout.setClocks()
+    #Clock.schedule_interval(driverLayout.update,1.0/60.0)  
     return driverLayout
     
 
