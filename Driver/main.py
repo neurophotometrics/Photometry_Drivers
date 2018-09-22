@@ -32,7 +32,7 @@ class Controller(Widget):
     self.mode = const.CONST
     self.active = False
     GPIO.setmode(GPIO.BCM)
-    self.FPS = 0.5
+    self.FPS = const.INITFPS
     self.enPin560State = GPIO.LOW
     self.enPin470State = GPIO.LOW
     self.enPin415State = GPIO.LOW
@@ -137,18 +137,13 @@ class DriverLayout(Widget):
   logo = ObjectProperty(None)
 
   def setClocks(self):
-     #self.controller.modeController()
     Clock.schedule_interval(self.controller.modeController,1.0/60.0)
-
-  def blink(self,dt):
-    self.controller.blink()
 
 
 class DriverApp(App):
   def build(self):
     driverLayout = DriverLayout()
     driverLayout.setClocks()
-    #Clock.schedule_interval(driverLayout.update,1.0/60.0)  
     return driverLayout
     
 

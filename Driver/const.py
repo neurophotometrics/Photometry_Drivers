@@ -20,7 +20,9 @@ validMode = (CONST,TRIG1,TRIG2,TRIG3)
 DOWN = "down"
 NORMAL = "normal"
 
-
+INITFPS = 2
+MAXFPS = 3
+MINFPS = 1
 
 
 
