@@ -45,10 +45,6 @@ class Controller(Widget):
     self.GPIO.output(const.enPin470,self.enPin470State)
     self.GPIO.output(const.enPin415,self.enPin415State)
   
-  def updateIntensity(self):
-    pass 
-  def updateFPS(self):
-    pass   
 
   def initMode(self):
     assert self.active == True 
@@ -70,6 +66,8 @@ class Controller(Widget):
       assert False
     self.updateEnable()
 
+  def updateIntensity(self):
+    pass 
 
   def modeController(self,dt):
     if self.active == False:
@@ -77,7 +75,6 @@ class Controller(Widget):
       self.enPin470State = self.GPIO.LOW
       self.enPin415State = self.GPIO.LOW
       self.updateIntensity()
-      self.updateFPS()   
       self.updateEnable()
   
 
@@ -132,7 +129,11 @@ class DriverLayout(Widget):
   trig1Button = ObjectProperty(None)
   trig2Button = ObjectProperty(None)
   trig3Button = ObjectProperty(None)
-  fpsSlider = ObjectProperty(None)#SliderFPS()
+  fpsSlider = ObjectProperty(None)
+  slider560 = ObjectProperty(None)
+  slider470 = ObjectProperty(None)
+  slider415 = ObjectProperty(None)
+     
 
   logo = ObjectProperty(None)
 

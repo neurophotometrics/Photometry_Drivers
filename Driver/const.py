@@ -1,3 +1,6 @@
+selectPin = 12 
+
+
 enPin560 = 18 #yellow
 enPin470 = 22 #white 
 enPin415 = 17 #blue 
@@ -24,7 +27,9 @@ INITFPS = 2
 MAXFPS = 3
 MINFPS = 1
 
-
+INITPOT = 0
+MINPOT = 0
+MAXPOT = 90
 
 
 

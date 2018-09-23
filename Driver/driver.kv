@@ -28,6 +28,9 @@
   constButton: const_button
   trig1Button: trig1_button
   fpsSlider: fps_slider
+  slider560: slider_560
+  slider470: slider_470
+  slider415: slider_415 
   logo: brain_logo
 
   OnButton:
@@ -91,14 +94,59 @@
     x: root.x + 200
     center_y: root.height - 100    
   
-
-
   Label:
     font_size: 20
     x: root.x + 200
     center_y: root.height - 50
     text: "FPS: " + str(round(root.fpsSlider.value,2))
+ 
+  Slider:
+    id: slider_560
+    disabled: root.controller.active
+    min: const.MINPOT
+    max: const.MAXPOT
+    value: const.INITPOT
+    orientation: "vertical"
+    x: root.x + 350
+    center_y: root.height - 100
+ 
+  Label:
+    font_size: 20
+    x: root.x + 350
+    center_y: root.height - 50
+    text: "560: " + str(round(root.slider560.value,2))
 
+  Slider:
+    id: slider_470
+    disabled: root.controller.active
+    min: const.MINPOT
+    max: const.MAXPOT
+    value: const.INITPOT
+    orientation: "vertical"
+    x: root.x + 500
+    center_y: root.height - 100
+  
+  Label:
+    font_size: 20
+    x: root.x + 500
+    center_y: root.height - 50
+    text: "470: " + str(round(root.slider470.value,2))
+
+  Slider:
+    id: slider_415
+    disabled: root.controller.active
+    min: const.MINPOT
+    max: const.MAXPOT
+    value: const.INITPOT
+    orientation: "vertical"
+    x: root.x + 650
+    center_y: root.height - 100
+  
+  Label:
+    font_size: 20
+    x: root.x + 650
+    center_y: root.height - 50
+    text: "415: " + str(round(root.slider415.value,2))
 
   Image: 
     id: brain_logo
