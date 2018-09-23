@@ -1,15 +1,15 @@
-selectPin = 12 
-
+selectPin = 0 
+potSpeed = 4000000
 
 enPin560 = 18 #yellow
 enPin470 = 22 #white 
 enPin415 = 17 #blue 
-enPins = (enPin560,enPin470,enPin415)
 
-potPin560 = 31
-potPin470 = 33
-potPin415 = 35
-potPins = (potPin560,potPin470,potPin415)
+
+chanPot560 = 0
+chanPot470 = 2
+chanPot415 = 1
+
 
 CONST = "CONST"
 TRIG1 = "TRIG1"
@@ -24,12 +24,11 @@ DOWN = "down"
 NORMAL = "normal"
 
 INITFPS = 2
-MAXFPS = 3
+MAXFPS = 5
 MINFPS = 1
 
 INITPOT = 0
 MINPOT = 0
 MAXPOT = 90
-
 
 

@@ -16,13 +16,13 @@ from kivy.properties import StringProperty
 from kivy.properties import ObjectProperty
 from kivy.vector import Vector
 from kivy.clock import Clock
-
+import wiringpi
 
 """
 Initializing global parameters
 """
 kivy.require('1.10.1') 
-
+wiringpi.wiringPiSPISetup(const.selectPin,const.potSpeed)
 
 class Controller(Widget):
   active = BooleanProperty(False)     
@@ -36,6 +36,9 @@ class Controller(Widget):
     self.enPin560State = GPIO.LOW
     self.enPin470State = GPIO.LOW
     self.enPin415State = GPIO.LOW
+    self.potPin560State = const.MINPOT
+    self.potPin470State = const.MINPOT
+    self.potPin415State = const.MINPOT
     GPIO.setup(const.enPin560,GPIO.OUT,initial=self.enPin560State)
     GPIO.setup(const.enPin470,GPIO.OUT,initial=self.enPin470State)
     GPIO.setup(const.enPin415,GPIO.OUT,initial=self.enPin415State)
@@ -67,8 +70,22 @@ class Controller(Widget):
     self.updateEnable()
 
   def updateIntensity(self):
-    pass 
+    buf = bytes([const.chanPot560]) 
+    wiringpi.wiringPiSPIDataRW(const.selectPin,buf)
+    buf = bytes([self.potPin560State])
+    wiringpi.wiringPiSPIDataRW(const.selectPin,buf) 
 
+    buf = bytes([const.chanPot470]) 
+    wiringpi.wiringPiSPIDataRW(const.selectPin,buf)
+    buf = bytes([self.potPin470State])
+    wiringpi.wiringPiSPIDataRW(const.selectPin,buf) 
+
+    buf = bytes([const.chanPot415]) 
+    wiringpi.wiringPiSPIDataRW(const.selectPin,buf)
+    buf = bytes([self.potPin415State])
+    wiringpi.wiringPiSPIDataRW(const.selectPin,buf)
+
+ 
   def modeController(self,dt):
     if self.active == False:
       self.enPin560State = self.GPIO.LOW
