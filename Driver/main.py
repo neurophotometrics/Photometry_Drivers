@@ -17,6 +17,8 @@ from kivy.properties import ObjectProperty
 from kivy.vector import Vector
 from kivy.clock import Clock
 import wiringpi
+import serial
+
 
 """
 Initializing global parameters
@@ -42,7 +44,8 @@ class Controller(Widget):
     GPIO.setup(const.enPin560,GPIO.OUT,initial=self.enPin560State)
     GPIO.setup(const.enPin470,GPIO.OUT,initial=self.enPin470State)
     GPIO.setup(const.enPin415,GPIO.OUT,initial=self.enPin415State)
-      
+    self.ser = serial.Serial(port,9600)   
+   
   def updateEnable(self):
     self.GPIO.output(const.enPin560,self.enPin560State)
     self.GPIO.output(const.enPin470,self.enPin470State)
@@ -108,7 +111,8 @@ class Controller(Widget):
       self.updateEnable()
       Clock.schedule_once(self.blinkController,1.0 / self.FPS)
  
-
+  def serial(self,dt):
+    
 
    
 
@@ -156,7 +160,7 @@ class DriverLayout(Widget):
 
   def setClocks(self):
     Clock.schedule_interval(self.controller.modeController,1.0/60.0)
-
+    Clock.schedule_interval(self.controller.serial,1.0/60)    
 
 class DriverApp(App):
   def build(self):
