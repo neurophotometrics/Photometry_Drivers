@@ -16,21 +16,22 @@ from kivy.properties import StringProperty
 from kivy.properties import ObjectProperty
 from kivy.vector import Vector
 from kivy.clock import Clock
-import wiringpi
+import spidev
 import serial
+import time
 
 
 """
 Initializing global parameters
 """
 kivy.require('1.10.1') 
-wiringpi.wiringPiSPISetup(const.selectPin,const.potSpeed)
 
 class Controller(Widget):
   active = BooleanProperty(False)     
   mode = StringProperty(const.NULL)
   def __init__(self,GPIO):
     self.GPIO = GPIO
+    self.sample = time.time()
     self.mode = const.CONST
     self.active = False
     GPIO.setmode(GPIO.BCM)
@@ -44,13 +45,16 @@ class Controller(Widget):
     GPIO.setup(const.enPin560,GPIO.OUT,initial=self.enPin560State)
     GPIO.setup(const.enPin470,GPIO.OUT,initial=self.enPin470State)
     GPIO.setup(const.enPin415,GPIO.OUT,initial=self.enPin415State)
-    port = '/dev/ttyACM0'
-    self.ser = serial.Serial(port,9600)   
+    GPIO.setup(const.camPin,GPIO.OUT,initial=GPIO.HIGH)
+    self.spi = spidev.SpiDev()
+    self.spi.open(0,0) # okay to hardcode; will never change?
+    self.spi.mode = 0
+    self.spi.max_speed_hz = const.potSpeed
    
   def updateEnable(self):
-    self.GPIO.output(const.enPin560,self.enPin560State)
-    self.GPIO.output(const.enPin470,self.enPin470State)
-    self.GPIO.output(const.enPin415,self.enPin415State)
+    self.GPIO.output(const.enPin560,not self.enPin560State)
+    self.GPIO.output(const.enPin470,not self.enPin470State)
+    self.GPIO.output(const.enPin415,not self.enPin415State)
   
 
   def initMode(self):
@@ -63,18 +67,25 @@ class Controller(Widget):
       self.enPin560State = self.GPIO.HIGH
       self.enPin470State = self.GPIO.LOW
       self.enPin415State = self.GPIO.HIGH
-      Clock.schedule_once(self.blinkController,1.0 / self.FPS)
     elif self.mode == const.TRIG2:
       self.enPin560State = self.GPIO.LOW
       self.enPin470State = self.GPIO.HIGH
       self.enPin415State = self.GPIO.HIGH
-      Clock.schedule_once(self.blinkController,1.0 / self.FPS)
     else:
       assert False
+    Clock.schedule_once(self.blinkController,1.0 / self.FPS)
     self.updateEnable()
 
+
+  def SPIProtocol(self,chan,state):
+    self.spi.xfer2([chan])
+    self.spi.xfer2([int(state)])
+
   def updateIntensity(self):
-    pass
+    self.SPIProtocol(const.chanPin560,self.potPin560State)
+    self.SPIProtocol(const.chanPin470,self.potPin470State)
+    self.SPIProtocol(const.chanPin415,self.potPin415State)
+
  
   def modeController(self,dt):
     if self.active == False:
@@ -92,50 +103,17 @@ class Controller(Widget):
 
   def blinkController(self,dt):
     if self.active == False:
-      pass
-    elif self.mode == const.TRIG1 or self.mode == const.TRIG2:
+      return
+    if self.mode == const.TRIG1 or self.mode == const.TRIG2:
       self.invertLED() 
       self.updateEnable()
-      Clock.schedule_once(self.blinkController,1.0 / self.FPS)
- 
-  def parseF(self,floating):
-    floating = round(floating,2)
-    string = str(floating)
-    if floating < 10:
-      string = "0" + string
-    if '.' not in string:
-      string = string + ".00"
-    if len(string) != 5:
-      string = string + "0"   
-    return string
+    
+    self.GPIO.output(const.camPin,self.GPIO.LOW)
+    #self.sample = time.time()
+    time.sleep(1.0 / 1000.0)
+    self.GPIO.output(const.camPin,self.GPIO.HIGH)
+    Clock.schedule_once(self.blinkController,1.0 / self.FPS)
   
-  def parseM(self,mode):
-    if mode == const.TRIG1:
-      return '1'
-    if mode == const.TRIG2:
-      return '2'
-    return 'C'
-
-  def parseA(self,active):
-    if active == True:
-      return '1'
-    return '0'
-  
-
-  def serial(self,dt):
-    str1 = self.parseF(self.potPin415State)
-    str2 = self.parseF(self.potPin470State)
-    str3 = self.parseF(self.potPin560State)
-    string = 'n' + self.parseM(self.mode)
-    string = string + str1 + str2 + str3
-    string = string + self.parseF(self.FPS) 
-    string = string + self.parseA(self.active)           
-    if len(string) != 23:
-      assert(False)
-    string = string.encode('utf-8')  
-    self.ser.write(string)
-    val = self.ser.readline()
-
 
 class OnButton(ToggleButton):
   def press_power(self):
@@ -181,7 +159,6 @@ class DriverLayout(Widget):
 
   def setClocks(self):
     Clock.schedule_interval(self.controller.modeController,1.0/60.0)
-    Clock.schedule_interval(self.controller.serial,1.0/60)    
 
 class DriverApp(App):
   def build(self):

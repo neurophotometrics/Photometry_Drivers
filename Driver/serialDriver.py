@@ -16,7 +16,6 @@ from kivy.properties import StringProperty
 from kivy.properties import ObjectProperty
 from kivy.vector import Vector
 from kivy.clock import Clock
-import wiringpi
 import serial
 
 
@@ -24,7 +23,6 @@ import serial
 Initializing global parameters
 """
 kivy.require('1.10.1') 
-wiringpi.wiringPiSPISetup(const.selectPin,const.potSpeed)
 
 class Controller(Widget):
   active = BooleanProperty(False)     
