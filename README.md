@@ -1,4 +1,14 @@
-# RaspberryDriver
+# Fiber Photometry Driver
+
+Legacy Arduino Driver:
+
+Uses an LCD display and physical knobs as the user interface. Controls the machine's LEDs and 
+camera triggering directly with GPIO. 
+
+
+
+Rasberry Pi with Touch Screen:
+
 Kivy implementation of a touch screen GUI for the photometry machine. Has two drivers:
 
 1. Pure Raspberry Driver. Uses the Raspberry GPIO to control the LEDs and camera triggering, i.e. interfaces
