@@ -1,7 +1,7 @@
-#include "npm_driverKhod.h"
+#include "standard.h"
 
 /*
- * Filename: npm_driver3ino
+ * Filename: standard
  * Author: Christopher Yin & John Messerly
  * Description:
  * User interface for Neurophotometrics

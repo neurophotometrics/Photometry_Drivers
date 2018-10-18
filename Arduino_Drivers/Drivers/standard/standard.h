@@ -1,8 +1,8 @@
 /*
- * Filename: npm_driverKhod.h
- * Author: Christopher Yin
- * Description: Header file containing methods and data fields for npm_driver3.
- * Date: 10.24.17
+ * Filename: standard.h
+ * Author: John Messerly and Christopher Yin 
+ * Description: Header file containing methods and data fields for the standard driver.
+ * Date: 10.18.18
  *
  * Data Fields:
  *         
@@ -38,8 +38,8 @@
  *
  */
 
-#ifndef npm_driverKhod
-#define npm_driverKhod
+#ifndef standard
+#define standard
 
 // define constants for addressing purposes
 #define LED410 0
