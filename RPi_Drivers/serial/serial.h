@@ -109,9 +109,11 @@ float oldLCD[] = {-200.0,-200.0,-200.0,-200.0};
 //void setHigh();
 void init_lcd();
 void updateLCD(int val);
-void updateFPS(float val);
-void updateLED(float* val);
+void updateFPS();
+void updateLED();
 void dPotWrite(int pot, int potval);
+void modeCheck();
+void startCheck();
 void init_LED(int led1,int led2, int led3);
 void shutdown_LED();
 void camera_write_trig1();
@@ -125,55 +127,12 @@ void dPotWrite(int channel, int potval);
  */
 
 
-float parseNumber(String str,int index){
-  String numberString = String(str[index]) + String(str[index+1]) + String(str[index+2]) + String(str[index+3]) + String(str[index+4]);
-  float number = numberString.toFloat();
-  return number;
-}
-
- void serialRoutine(String str){
-  switch (str[1]) {
-    case 'C':
-      mode = CONSTANT_MODE;
-      lcd.setCursor(16,0);
-      lcd.print("CNST");
-    break;
-    case '1':
-      mode = TRIGGER1_MODE;
-      lcd.setCursor(16,0);
-      lcd.print("TRG1");
-    break;
-    case '2':
-      mode = TRIGGER2_MODE;
-      lcd.setCursor(16,0);
-      lcd.print("TRG2");
-    break;
-    case '3':
-      mode = TRIGGER3_MODE;
-      lcd.setCursor(16,0);
-      lcd.print("TRG3");
-    break;
-  }
-  float newIntensity[] = {6.0,6.0,6.0};
-  newIntensity[0] = parseNumber(str,2);
-  newIntensity[1] = parseNumber(str,7);
-  newIntensity[2] = parseNumber(str,12);
-  updateLED(newIntensity);
-  float newFPS = parseNumber(str,17);
-  updateFPS(newFPS);
-  if (str[22] == '1') {
-    start = true;
-  }
-  else {
-    start = false;
-  }
- }
 
 
- void serialUpdate() {
+void serialUpdate() {
   if (Serial.available() > 0) {
     String str = Serial.readString();
-    char startCode = str[0];
+    startCode = str[0];
     if (startCode == 'n') {
       serialRoutine(str);
     }
@@ -210,9 +169,8 @@ void init_lcd(){
   lcd.setCursor(0,FPS);
   lcd.print("FPS:    ");
 
-  float initLED[] = {6.0,6.0,6.0};
-  updateLED(initLED);
-  updateFPS(5.00);
+  updateLED();
+  updateFPS();
 
   //print capture status
   lcd.setCursor(17,3);
@@ -278,16 +236,22 @@ void updateLCD(int val){
  *    to LCD screen if value has changed. Update exposure time
  *    (t_exposure).
  */
-void updateFPS(float newFPS){
+void updateFPS(){
+
+  int oldFPS = intensity[FPS];
+   
+  //update FPS value
+  intensity[FPS] = abs(map(analogRead(potPins[FPS]),0,1023,minFPS,maxFPS)-(minFPS+maxFPS));
+  
   //update LCD
-  if(newFPS != intensity[FPS]){
-    intensity[FPS] = newFPS;
+  if(oldFPS != intensity[FPS]){
     updateLCD(FPS);
     //update exposure time
     cli();
     t_exposure = 1000/intensity[FPS] - t_dead;
     dcount = 0;
     sei();
+    //OCR1A = int(t_exposure * 16.66666);
   }
 }
 
@@ -302,13 +266,41 @@ void updateFPS(float newFPS){
  *    adjust digipot appropriately. Print new value of
  *    intensity for each LED if value has changed.
  */
-void updateLED(float* newIntensity){
+void updateLED(){
   for(int led=0;led<3;led++){
-    if (newIntensity[led] != intensity[led]){
-      intensity[led] = newIntensity[led];
+    float oldLed = intensity[led];
+    //delay(500);
+    //update stored led intensity
+    temp = analogRead(potPins[led]);
+    
+    float subPercent = 0.50; // i want to spend x percent between 0 and 1. default to 1
+    //float superPercent = 1 - subPercent; // i spend the rest of my time 1 and 99
+    float subThresh = 1023 * subPercent;
+    float subScale = 1 / subThresh;
+    float value = 0;
+    int potval = 0;
+    int potMin = 0;
+    int potMax = 90;
+    int potThresh = (potMin + potMax) * subPercent;
+    if (temp < subThresh){
+      value = ((float) temp) * subScale;
+      potval = map(temp,0,subThresh,potMin,potThresh);
+    }
+    else {
+      value = map(temp,subThresh,1023,1,100);
+      potval = map(temp,subThresh,1023,potThresh,potMax);
+    }
+
+  
+     
+    intensity[led] = value;
+    if (intensity[led] != oldLed){
       updateLCD(led);
     }
-    dPotWrite(potChannel[led],intensity[led]);
+     
+    dPotWrite(potChannel[led],potval);
+    
+    
   }
 }
 
@@ -335,8 +327,53 @@ void dPotWrite(int channel, int potval){
   digitalWrite(selectPin,HIGH);
 }
 
+/*
+ * Name:        modeCheck
+ * Purpose:     check mode of LED triggering
+ * Parameter:   void
+ * Return:      n/a
+ * Description: 
+ *    If modeButton has been pressed, cycle to next mode in ordered list:
+ *      1) CONSTANT
+ *      2) TRIGGER1
+ *      3) TRIGGER2
+ *      4) TRIGGER3
+ *    Print new mode to LCD.
+ */
+void modeCheck(){
+  if(modeButton.uniquePress()){
+      mode = (mode+1)%4;
+      lcd.setCursor(16,0);
+      switch(mode){
+        case CONSTANT_MODE:
+          lcd.print("CNST");
+          break;
+        case TRIGGER1_MODE:
+          lcd.print("TRG1");
+          break;
+        case TRIGGER2_MODE:
+          lcd.print("TRG2");
+          break;
+        case TRIGGER3_MODE:
+          lcd.print("TRG3");
+          break;
+      }
+  } 
+}
 
-
+/*
+ * Name:        startCheck
+ * Purpose:     check if start switch is on or off
+ * Parameter:   void
+ * Return:      n/a
+ * Description: 
+ *    If switch is in "on" position (corresponding to a
+ *    button being in a "pressed" state), start is set to
+ *    TRUE; otherwise, FALSE.
+ */
+void startCheck(){
+  start = startButton.isPressed();
+}
 
 
 /*

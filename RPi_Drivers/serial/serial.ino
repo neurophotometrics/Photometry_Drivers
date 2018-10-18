@@ -55,15 +55,12 @@ void setup() {
   // initialize SPI communication with digipot
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);
-  Serial.begin(9600);
-  Serial.setTimeout(3);
-  Serial.println("Ready");
 
   init_lcd();
 }
 
 void loop() {
-  serialUpdate();
+  startCheck();
   if (!start){
     switchEnable = false;
     shutdown_LED();
@@ -71,8 +68,11 @@ void loop() {
     lcd.print("OFF");
     digitalWrite(cameraPin,HIGH);
     while (!start){
-      delay(10);
-      serialUpdate();
+      delay(50);
+      updateLED();
+      updateFPS();    
+      modeCheck();
+      startCheck();
     }
   }
   else {  
@@ -94,7 +94,11 @@ void loop() {
     }
     switchEnable = true;
     while(start){
-      serialUpdate();
+      if (mode == CONSTANT_MODE){
+        updateLED();
+        delay(50);
+      }
+      startCheck();
     }
   }
 }
