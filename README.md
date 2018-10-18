@@ -1,13 +1,18 @@
 # Fiber Photometry Drivers
 
-Legacy Arduino Driver:
+
+Arduino and Rapsberry Pi code for controlling fiber photometry machines found at 
+https://www.neurophotometrics.com/
+
+
+*Legacy Arduino Driver*:
 
 Uses an LCD display and physical knobs as the user interface. Controls the machine's LEDs and 
 camera triggering directly with GPIO. 
 
 
 
-Rasberry Pi with Touch Screen:
+*Rasberry Pi with Touch Screen*:
 
 Kivy implementation of a touch screen GUI for the photometry machine. Has two drivers:
 
