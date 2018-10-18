@@ -1,4 +1,4 @@
-# Fiber Photometry Driver
+# Fiber Photometry Drivers
 
 Legacy Arduino Driver:
 
