@@ -1,6 +1,6 @@
 # Fiber Photometry Drivers
 
-![Image of NPM](https://raw.githubusercontent.com/neurophotometrics/Photometry_Drivers/master/RPi_Drivers/NPMLogo.png)
+![Image of NPM](https://raw.githubusercontent.com/neurophotometrics/Photometry_Drivers/master/RPi_Drivers/NPMLogo.png | scale=0.5)
 
 Arduino and Rapsberry Pi code for controlling fiber photometry machines found at 
 https://www.neurophotometrics.com/
