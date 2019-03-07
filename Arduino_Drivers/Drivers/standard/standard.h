@@ -1,6 +1,5 @@
 /*
- * Filename: standard.h
- * Author: John Messerly and Christopher Yin 
+ * Author: John Messerly & Christopher Yin
  * Description: Header file containing methods and data fields for the standard driver.
  * Date: 10.18.18
  *
@@ -410,13 +409,13 @@ ISR(TIMER1_COMPA_vect){
       dcount = 0;
       switch (mode) {
         case TRIGGER1_MODE:
-          for(int led=0;led<=2;led++){ // all three used 
+          for(int led=0;led < 3;led++){ // all three used CHANGE:mar1st
             on[led] = !on[led];
             digitalWrite(ledWritePins[led],on[led]);
           }
           break;
         case TRIGGER2_MODE:
-          for(int led=1;led<=2;led++){ // only blue/green used
+          for(int led=1;led < 3;led++){ // only blue/green used
             on[led] = !on[led];
             digitalWrite(ledWritePins[led],on[led]);
           }

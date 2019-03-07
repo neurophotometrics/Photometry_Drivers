@@ -1,14 +1,5 @@
 #include "standard.h"
 
-/*
- * Filename: standard
- * Author: Christopher Yin & John Messerly
- * Description:
- * User interface for Neurophotometrics
- * Date: 10.24.17
- *
- */
-
 void setup() {
 
   /*
@@ -82,13 +73,14 @@ void loop() {
       case CONSTANT_MODE:
         init_LED(HIGH,HIGH,HIGH);
       break;
-      case TRIGGER1_MODE: // interleave purple with blue/green
+      case TRIGGER1_MODE: // interleave purple with blue/green. state blue/green -> state purple -> repeat
         init_LED(LOW,HIGH,HIGH);
       break;
-      case TRIGGER2_MODE: // interleave green/blue. purple unused
+      case TRIGGER2_MODE: // interleave green/blue. purple unused. state blue -> state green -> repeat 
         init_LED(LOW,HIGH,LOW);
       break;
-      case TRIGGER3_MODE:
+      case TRIGGER3_MODE: // all LEDs out of phase. state blue -> state green -> state purple -> repeat 
+        cycle_led = 0;
         init_LED(LOW,LOW,LOW);
       break;
     }
